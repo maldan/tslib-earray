@@ -1,3 +1,3 @@
-# TS LIB
+# Extend Array
 
-Description will coming soon!
+Extended array
