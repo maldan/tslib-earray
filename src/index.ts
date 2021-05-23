@@ -1,5 +1,9 @@
 export class EArray<T> extends Array {
-  constructor(arr: T[]) {
+  static get [Symbol.species]() {
+    return Array;
+  }
+
+  constructor(arr: any) {
     super(...(arr as any));
   }
 
@@ -34,15 +38,15 @@ export class EArray<T> extends Array {
     return out;
   }
 
-  gap(): number[] {
+  gap(): EArray<number> {
     const out = [];
     for (let i = 0; i < this.length - 1; i++) {
       out.push(this[i + 1] - this[i]);
     }
-    return out;
+    return new EArray(out);
   }
 
-  extractField(field: string): unknown[] {
+  extractField(field: string): EArray<unknown> {
     const out = [];
     for (let i = 0; i < this.length; i++) {
       // deno-lint-ignore no-prototype-builtins
@@ -50,11 +54,11 @@ export class EArray<T> extends Array {
         out.push(this[i][field]);
       }
     }
-    return out;
+    return new EArray(out);
   }
 
-  delete(...value: unknown[]): unknown[] {
-    const removed: unknown[] = [];
+  delete(...value: unknown[]): EArray<T> {
+    const removed = new EArray<T>([]);
     for (let i = 0; i < value.length; i++) {
       const index = this.indexOf(value[i]);
       if (index !== -1) {
@@ -65,21 +69,17 @@ export class EArray<T> extends Array {
     return removed;
   }
 
-  /**
-   * Remove passed value from array and remove them all.
-   * Return an array of removed values.
-   * @param {unknown} value
-   */
-  deleteAll(...value: unknown[]): unknown[] {
-    const removed = [];
+  deleteAll(...value: unknown[]): EArray<T> {
+    const removed = new EArray<T>([]);
     for (let i = 0; i < value.length; i++) {
       for (let j = 0; j < this.length; j++) {
-        if (this[j] === value[j]) {
-          removed.push(this.splice(j, 1)[0]);
+        if (this[j] === value[i]) {
+          removed.push(...this.splice(j, 1));
           j--;
         }
       }
     }
+
     return removed;
   }
 
@@ -87,7 +87,7 @@ export class EArray<T> extends Array {
     return this[this.length - 1];
   }
 
-  shuffle(): unknown[] {
+  shuffle(): EArray<T> {
     const array = JSON.parse(JSON.stringify(this));
 
     for (let i = array.length - 1; i > 0; i--) {
@@ -95,14 +95,14 @@ export class EArray<T> extends Array {
       [array[i], array[j]] = [array[j], array[i]];
     }
 
-    return array;
+    return new EArray(array);
   }
 
   clear(): void {
     this.length = 0;
   }
 
-  unique(field?: string): T[] {
+  unique(field?: string): EArray<T> {
     if (field) {
       const out = [];
       for (let i = 0; i < this.length; i++) {
@@ -117,11 +117,13 @@ export class EArray<T> extends Array {
           out.push(this[i]);
         }
       }
-      return out;
+      return new EArray(out);
     }
-    return this.filter(function (value, index, self) {
-      return self.indexOf(value) === index;
-    });
+    return new EArray(
+      this.filter(function (value, index, self) {
+        return self.indexOf(value) === index;
+      }),
+    );
   }
 
   contains(...value: unknown[]): boolean {
@@ -133,7 +135,7 @@ export class EArray<T> extends Array {
     return true;
   }
 
-  chunk(size: number = 0): unknown[] {
+  chunk(size: number = 0): EArray<unknown> {
     if (size <= 0) {
       return this;
     }
@@ -143,6 +145,10 @@ export class EArray<T> extends Array {
       const p = this.splice(0, size);
       out.push(p);
     }
-    return out;
+    return new EArray(out);
+  }
+
+  toArray(): T[] {
+    return [...this];
   }
 }

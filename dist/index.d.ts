@@ -1,20 +1,17 @@
 export declare class EArray<T> extends Array {
-    constructor(arr: T[]);
+    static get [Symbol.species](): ArrayConstructor;
+    constructor(arr: any);
     avg(field?: string): number;
     sum(field?: string): number;
-    gap(): number[];
-    extractField(field: string): unknown[];
-    delete(...value: unknown[]): unknown[];
-    /**
-     * Remove passed value from array and remove them all.
-     * Return an array of removed values.
-     * @param {unknown} value
-     */
-    deleteAll(...value: unknown[]): unknown[];
+    gap(): EArray<number>;
+    extractField(field: string): EArray<unknown>;
+    delete(...value: unknown[]): EArray<T>;
+    deleteAll(...value: unknown[]): EArray<T>;
     last(): T;
-    shuffle(): unknown[];
+    shuffle(): EArray<T>;
     clear(): void;
-    unique(field?: string): T[];
+    unique(field?: string): EArray<T>;
     contains(...value: unknown[]): boolean;
-    chunk(size?: number): unknown[];
+    chunk(size?: number): EArray<unknown>;
+    toArray(): T[];
 }
